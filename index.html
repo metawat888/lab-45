@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interactive Constellation Creator - สร้างกลุ่มดาวตามจินตนาการ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            color: #e2e8f0;
+            overflow: hidden; /* Prevent scrolling to keep app-like feel */
+        }
+        .bg-star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite ease-in-out;
+            opacity: var(--opacity);
+            pointer-events: none;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        canvas {
+            cursor: crosshair;
+            touch-action: none; /* Crucial for custom pointer events */
+            -webkit-touch-callout: none; /* ป้องกันเมนูเด้งบน iOS */
+            -webkit-user-select: none; /* ป้องกันการคลุมดำข้อความ */
+            user-select: none;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* ซ่อน Scrollbar สำหรับแถบเครื่องมือบนมือถือ */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Custom scrollbar for control panel on large screens */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5); 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.8); 
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col selection:bg-indigo-500 selection:text-white relative">
+
+    <div id="stars-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <header class="relative z-20 w-full glass-panel shadow-lg flex-shrink-0">
+        <div class="w-full mx-auto px-3 py-2 sm:px-4 sm:py-3 flex flex-col gap-3">
+            
+            <!-- Row 1: App Title, Name Input & Developer Profile -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <div class="bg-indigo-600 p-1.5 sm:p-2 rounded-xl text-white shadow-lg shadow-indigo-500/30 hidden sm:block">
+                        <svg class="w-5 h-5 animate-spin" style="animation-duration: 20s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-sm sm:text-lg font-bold bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">StarCanvas</h1>
+                        <div class="flex items-center mt-0.5">
+                            <input type="text" id="constellation-name" placeholder="ตั้งชื่อกลุ่มดาว..." class="bg-slate-900/80 border border-slate-700 rounded-lg px-2 py-1 text-[11px] sm:text-xs text-slate-200 focus:outline-none focus:border-indigo-500 w-28 sm:w-48 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Developer Info -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div class="flex flex-col text-right hidden md:block">
+                        <span class="text-[10px] text-slate-400 leading-none">พัฒนาโดย</span>
+                        <span class="text-xs font-medium text-indigo-300">นายเมธาวัฒน์ พงสะพัง</span>
+                    </div>
+                    <a href="https://github.com/metawat888" target="_blank" class="flex items-center justify-center relative group">
+                        <img src="https://github.com/metawat888/Picture/raw/69f9d3a46e017adc43abb8db3503ea8106ecae61/97488303_2887790847941184_353651305119481856_n.jpg" alt="Developer" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-indigo-500/50 object-cover shadow-lg group-hover:border-indigo-400 transition-colors" title="พัฒนาโดย นายเมธาวัฒน์ พงสะพัง">
+                        <span class="absolute -bottom-8 right-0 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none hidden md:block">นายเมธาวัฒน์ พงสะพัง</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Row 2: Scrollable Toolbar for Mobile -->
+            <div class="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar pb-1 w-full snap-x">
+                
+                <!-- Color Picker -->
+                <div class="flex items-center gap-1.5 bg-slate-800/50 p-1.5 rounded-xl border border-slate-700/50 flex-shrink-0 snap-start">
+                    <button onclick="setStarColor('#ffffff')" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border-2 border-indigo-400 shadow-sm star-color-btn transform transition hover:scale-110" data-color="#ffffff" title="ดาวขาว"></button>
+                    <button onclick="setStarColor('#93c5fd')" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-blue-300 border-2 border-transparent shadow-sm star-color-btn transform transition hover:scale-110" data-color="#93c5fd" title="ดาวน้ำเงิน"></button>
+                    <button onclick="setStarColor('#fde047')" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-yellow-300 border-2 border-transparent shadow-sm star-color-btn transform transition hover:scale-110" data-color="#fde047" title="ดาวเหลือง"></button>
+                    <button onclick="setStarColor('#fca5a5')" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-400 border-2 border-transparent shadow-sm star-color-btn transform transition hover:scale-110" data-color="#fca5a5" title="ดาวแดง"></button>
+                    <button onclick="setStarColor('#c084fc')" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-purple-400 border-2 border-transparent shadow-sm star-color-btn transform transition hover:scale-110" data-color="#c084fc" title="ดาวม่วง"></button>
+                </div>
+
+                <!-- Size Slider -->
+                <div class="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-700/50 flex-shrink-0 snap-start">
+                    <span class="text-[10px] text-slate-400 font-medium">ขนาด</span>
+                    <input type="range" id="star-size" min="4" max="16" value="6" class="w-16 sm:w-24 accent-indigo-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer">
+                </div>
+
+                <!-- Modes (Draw / Delete) -->
+                <div class="flex items-center gap-1 bg-slate-800/50 p-1 rounded-xl border border-slate-700/50 flex-shrink-0 snap-start">
+                    <button id="mode-draw" onclick="setMode('draw')" class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center space-x-1 bg-indigo-600 text-white shadow-md">
+                        <svg class="w-3.5 h-3.5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        <span>วาด & โยงเส้น</span>
+                    </button>
+                    <button id="mode-delete" onclick="setMode('delete')" class="px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-lg transition-all flex items-center space-x-1 text-slate-400 hover:text-white hover:bg-slate-700">
+                        <svg class="w-3.5 h-3.5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        <span>ลบ</span>
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-1.5 flex-shrink-0 snap-start">
+                    <button onclick="undoLast()" class="p-1.5 sm:p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition bg-slate-800/30 border border-slate-700/50" title="ย้อนกลับ">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                    </button>
+                    <button onclick="clearCanvas()" class="p-1.5 sm:p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition bg-slate-800/30 border border-slate-700/50" title="ล้างกระดาน">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <button onclick="saveConstellationCard()" class="px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-medium rounded-xl shadow-lg transition text-[10px] sm:text-xs flex items-center space-x-1 ml-1">
+                        <svg class="w-3.5 h-3.5 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        <span>บันทึกการ์ด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Helpful Hint -->
+        <div class="bg-slate-900/50 border-t border-slate-800/50 py-1 px-2 sm:py-1.5 sm:px-4 text-center">
+            <p class="text-[10px] sm:text-[11px] text-indigo-300/80">
+                💡 <b>วิธีใช้งาน:</b> แตะที่ว่างเพื่อเพิ่มดาว | <b>แตะค้างที่ดาวแล้วลาก</b>เพื่อเชื่อมเส้น | <b>แตะเบิ้ล(Double Tap)</b>เพื่อลบ
+            </p>
+        </div>
+    </header>
+
+    <main class="relative z-10 flex-grow w-full h-full overflow-hidden">
+        
+        <div class="absolute bottom-4 left-4 z-20 text-[11px] text-slate-400 pointer-events-none bg-slate-900/60 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-slate-800 flex gap-3 shadow-lg">
+            <span>ดาวทั้งหมด: <span id="star-count" class="text-indigo-400 font-bold">0</span></span>
+            <span>เส้นเชื่อม: <span id="line-count" class="text-purple-400 font-bold">0</span></span>
+        </div>
+
+        <!-- Interactive HTML Canvas -->
+        <canvas id="constellationCanvas" class="w-full h-full block touch-none"></canvas>
+    </main>
+
+    <!-- Modal for Saved Constellation Card Preview -->
+    <div id="card-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+        <div class="glass-panel max-w-sm w-full p-6 rounded-3xl border border-slate-700 shadow-2xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 p-2 rounded-full">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="text-center">
+                <div class="inline-block p-3 bg-indigo-500/20 text-indigo-400 rounded-full mb-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                </div>
+                <h3 id="modal-title-display" class="text-xl font-bold text-white mb-4">กลุ่มดาวไร้ชื่อ</h3>
+                <div class="bg-slate-900/90 rounded-2xl p-4 mb-5 border border-slate-800 text-left text-xs text-slate-300 space-y-2">
+                    <p class="flex justify-between border-b border-slate-800 pb-2"><span>✨ จำนวนดาว:</span> <span id="modal-star-count" class="font-bold text-indigo-400">0</span></p>
+                    <p class="flex justify-between border-b border-slate-800 pb-2"><span>🌌 เส้นเชื่อมโยง:</span> <span id="modal-line-count" class="font-bold text-purple-400">0</span></p>
+                    <p class="flex justify-between text-[10px] text-slate-500 pt-1"><span>ค้นพบเมื่อ:</span> <span id="modal-date"></span></p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="closeModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium text-sm transition">ปิด</button>
+                    <button onclick="downloadAlert()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium text-sm shadow-lg shadow-indigo-600/30 transition">ดาวน์โหลดภาพ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Box -->
+    <div id="custom-alert" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 glass-panel border border-indigo-500/40 px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 pointer-events-none">
+        <div class="text-indigo-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <span id="alert-text" class="text-sm text-slate-200 font-medium">แจ้งเตือน</span>
+    </div>
+
+    <script>
+        // Background twinkling stars generator (purely cosmetic)
+        const starsContainer = document.getElementById('stars-container');
+        for (let i = 0; i < 60; i++) {
+            const s = document.createElement('div');
+            s.className = 'bg-star';
+            const size = Math.random() * 2 + 1;
+            s.style.width = `${size}px`;
+            s.style.height = `${size}px`;
+            s.style.top = `${Math.random() * 100}%`;
+            s.style.left = `${Math.random() * 100}%`;
+            s.style.setProperty('--duration', `${Math.random() * 4 + 2}s`);
+            s.style.setProperty('--opacity', Math.random() * 0.5 + 0.1);
+            starsContainer.appendChild(s);
+        }
+
+        // --- Application State ---
+        let currentMode = 'draw'; // 'draw' (add + connect via drag) or 'delete'
+        let selectedStarColor = '#ffffff';
+        let stars = [];
+        let lines = [];
+        let historyStack = [];
+        
+        // Drag-to-connect state
+        let isDraggingLine = false;
+        let dragSourceStar = null;
+        let dragCurrentPos = null;
+        
+        // Interaction state
+        let hoveredStar = null;
+        let lastTapTime = 0;
+        let ignoreNextUp = false;
+
+        const canvas = document.getElementById('constellationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const parent = canvas.parentElement;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            draw();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            // Start with a blank canvas as requested
+            updateCounters();
+        });
+
+        function setMode(mode) {
+            currentMode = mode;
+            isDraggingLine = false;
+            dragSourceStar = null;
+            
+            const btnDraw = document.getElementById('mode-draw');
+            const btnDelete = document.getElementById('mode-delete');
+
+            if (mode === 'draw') {
+                btnDraw.className = 'px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center space-x-1 bg-indigo-600 text-white shadow-md';
+                btnDelete.className = 'px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center space-x-1 text-slate-400 hover:text-white hover:bg-slate-700';
+            } else {
+                btnDelete.className = 'px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center space-x-1 bg-red-600 text-white shadow-md';
+                btnDraw.className = 'px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center space-x-1 text-slate-400 hover:text-white hover:bg-slate-700';
+            }
+            draw();
+        }
+
+        function setStarColor(color) {
+            selectedStarColor = color;
+            document.querySelectorAll('.star-color-btn').forEach(b => {
+                if (b.getAttribute('data-color') === color) {
+                    b.classList.add('border-indigo-400', 'scale-110');
+                    b.classList.remove('border-transparent');
+                } else {
+                    b.classList.remove('border-indigo-400', 'scale-110');
+                    b.classList.add('border-transparent');
+                }
+            });
+        }
+
+        function saveState() {
+            historyStack.push({
+                stars: JSON.parse(JSON.stringify(stars)),
+                lines: JSON.parse(JSON.stringify(lines))
+            });
+            if (historyStack.length > 20) historyStack.shift();
+        }
+
+        function undoLast() {
+            if (historyStack.length === 0) {
+                alertBox('ไม่สามารถย้อนกลับได้อีก');
+                return;
+            }
+            const prevState = historyStack.pop();
+            stars = prevState.stars;
+            lines = prevState.lines;
+            isDraggingLine = false;
+            dragSourceStar = null;
+            updateCounters();
+            draw();
+        }
+
+        function clearCanvas() {
+            if(stars.length === 0) return;
+            saveState();
+            stars = [];
+            lines = [];
+            isDraggingLine = false;
+            dragSourceStar = null;
+            updateCounters();
+            draw();
+            alertBox('ล้างกระดานเรียบร้อยแล้ว');
+        }
+
+        function updateCounters() {
+            document.getElementById('star-count').innerText = stars.length;
+            document.getElementById('line-count').innerText = lines.length;
+        }
+
+        // Get coordinates relative to canvas (handles mouse and touch via PointerEvent)
+        function getCanvasCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Handle both PointerEvent and fallback TouchEvent
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            }
+
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function findStarAt(x, y) {
+            // Check backwards to select top-most star if they overlap
+            for (let i = stars.length - 1; i >= 0; i--) {
+                const s = stars[i];
+                // Hitbox is slightly larger than the star for easier clicking on mobile
+                const dist = Math.hypot(s.x - x, s.y - y);
+                if (dist <= Math.max(s.radius + 8, 20)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+
+        function findLineAt(x, y) {
+            for (let i = 0; i < lines.length; i++) {
+                const l = lines[i];
+                const s1 = stars.find(s => s.id === l.from);
+                const s2 = stars.find(s => s.id === l.to);
+                if (!s1 || !s2) continue;
+
+                const A = x - s1.x;
+                const B = y - s1.y;
+                const C = s2.x - s1.x;
+                const D = s2.y - s1.y;
+
+                const dot = A * C + B * D;
+                const lenSq = C * C + D * D;
+                let param = -1;
+                if (lenSq !== 0) param = dot / lenSq;
+
+                let xx, yy;
+                if (param < 0) {
+                    xx = s1.x;
+                    yy = s1.y;
+                } else if (param > 1) {
+                    xx = s2.x;
+                    yy = s2.y;
+                } else {
+                    xx = s1.x + param * C;
+                    yy = s1.y + param * D;
+                }
+
+                const dist = Math.hypot(x - xx, y - yy);
+                // 10px tolerance for line deletion
+                if (dist < 10) return i; 
+            }
+            return -1;
+        }
+
+        // Pointer Events for unified Mouse & Touch handling
+        canvas.addEventListener('pointerdown', (e) => {
+            const pos = getCanvasCoordinates(e);
+            const clickedStar = findStarAt(pos.x, pos.y);
+
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTapTime;
+            
+            if (tapLength < 300 && tapLength > 0) {
+                if (clickedStar) {
+                    // Double tap on a star -> Delete it
+                    saveState();
+                    stars = stars.filter(s => s.id !== clickedStar.id);
+                    lines = lines.filter(l => l.from !== clickedStar.id && l.to !== clickedStar.id);
+                    updateCounters();
+                    draw();
+                    
+                    ignoreNextUp = true;
+                    isDraggingLine = false;
+                    dragSourceStar = null;
+                    lastTapTime = 0;
+                    return; 
+                } else {
+                    // Check if double tapped a line to delete
+                    const lineIdx = findLineAt(pos.x, pos.y);
+                    if (lineIdx !== -1) {
+                        saveState();
+                        lines.splice(lineIdx, 1);
+                        updateCounters();
+                        draw();
+
+                        ignoreNextUp = true;
+                        isDraggingLine = false;
+                        dragSourceStar = null;
+                        lastTapTime = 0;
+                        return;
+                    }
+                }
+            }
+            lastTapTime = currentTime;
+            ignoreNextUp = false;
+
+            if (currentMode === 'draw') {
+                if (clickedStar) {
+                    // Start dragging a line from this star
+                    isDraggingLine = true;
+                    dragSourceStar = clickedStar;
+                    dragCurrentPos = { x: pos.x, y: pos.y };
+                }
+            } else if (currentMode === 'delete') {
+                // Delete logic on down to feel responsive
+                if (clickedStar) {
+                    saveState();
+                    stars = stars.filter(s => s.id !== clickedStar.id);
+                    lines = lines.filter(l => l.from !== clickedStar.id && l.to !== clickedStar.id);
+                    updateCounters();
+                    draw();
+                } else {
+                    const lineIdx = findLineAt(pos.x, pos.y);
+                    if (lineIdx !== -1) {
+                        saveState();
+                        lines.splice(lineIdx, 1);
+                        updateCounters();
+                        draw();
+                    }
+                }
+            }
+            // Capture pointer so we keep getting move events even if mouse leaves canvas slightly
+            canvas.setPointerCapture(e.pointerId);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            const pos = getCanvasCoordinates(e);
+            hoveredStar = findStarAt(pos.x, pos.y);
+
+            if (currentMode === 'draw' && isDraggingLine) {
+                dragCurrentPos = { x: pos.x, y: pos.y };
+                // If hovering over a valid target star while dragging, snap to it visually
+                if (hoveredStar && hoveredStar.id !== dragSourceStar.id) {
+                    dragCurrentPos = { x: hoveredStar.x, y: hoveredStar.y };
+                }
+                draw(); // animate line
+            } else {
+                // Just update hover effects if not dragging
+                draw();
+            }
+        });
+
+        canvas.addEventListener('pointerup', (e) => {
+            canvas.releasePointerCapture(e.pointerId);
+            
+            if (ignoreNextUp) {
+                ignoreNextUp = false;
+                return;
+            }
+
+            const pos = getCanvasCoordinates(e);
+            const targetStar = findStarAt(pos.x, pos.y);
+
+            if (currentMode === 'draw') {
+                if (isDraggingLine) {
+                    // Finished dragging. Did we land on a valid target star?
+                    if (targetStar && targetStar.id !== dragSourceStar.id) {
+                        const exists = lines.some(l => 
+                            (l.from === dragSourceStar.id && l.to === targetStar.id) ||
+                            (l.from === targetStar.id && l.to === dragSourceStar.id)
+                        );
+                        if (!exists) {
+                            saveState();
+                            lines.push({ from: dragSourceStar.id, to: targetStar.id });
+                            updateCounters();
+                        }
+                    }
+                    // Reset drag state
+                    isDraggingLine = false;
+                    dragSourceStar = null;
+                    dragCurrentPos = null;
+                    draw();
+                } else {
+                    // It was a simple click on empty space (pointerdown + pointerup on roughly same spot)
+                    if (!targetStar) {
+                        saveState();
+                        const radius = parseInt(document.getElementById('star-size').value);
+                        const newStar = {
+                            id: stars.length > 0 ? Math.max(...stars.map(s => s.id)) + 1 : 1,
+                            x: pos.x,
+                            y: pos.y,
+                            radius: radius,
+                            color: selectedStarColor
+                        };
+                        stars.push(newStar);
+                        updateCounters();
+                        draw();
+                    }
+                }
+            }
+        });
+
+        // Cancel drag if leaving canvas (safeguard)
+        canvas.addEventListener('pointercancel', (e) => {
+            isDraggingLine = false;
+            dragSourceStar = null;
+            draw();
+        });
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw subtle background grid for guidance
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            const gridSize = 50;
+            for (let x = 0; x < canvas.width; x += gridSize) {
+                for (let y = 0; y < canvas.height; y += gridSize) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // Draw confirmed lines
+            lines.forEach(l => {
+                const s1 = stars.find(s => s.id === l.from);
+                const s2 = stars.find(s => s.id === l.to);
+                if (s1 && s2) {
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.moveTo(s1.x, s1.y);
+                    ctx.lineTo(s2.x, s2.y);
+                    // Solid, clean line
+                    ctx.strokeStyle = 'rgba(216, 180, 254, 0.8)'; // light purple
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+
+            // Draw dragging line preview
+            if (isDraggingLine && dragSourceStar && dragCurrentPos) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(dragSourceStar.x, dragSourceStar.y);
+                ctx.lineTo(dragCurrentPos.x, dragCurrentPos.y);
+                // Dashed line indicating action in progress
+                ctx.strokeStyle = 'rgba(139, 92, 246, 0.9)'; // vivid purple
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Draw Stars (Sharp, non-blurry)
+            stars.forEach(s => {
+                ctx.save();
+                
+                // Optional: Very faint subtle glow behind the sharp star, not overpowering
+                const gradient = ctx.createRadialGradient(s.x, s.y, s.radius, s.x, s.y, s.radius * 2.5);
+                gradient.addColorStop(0, s.color.replace(')', ', 0.4)').replace('rgb', 'rgba'));
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius * 2.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Core of the star: Completely solid and sharp
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Inner bright dot for extra sharpness on larger stars
+                if (s.radius > 5) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Interactive highlighting (Hover or Drag Source)
+                if (s === hoveredStar || s === dragSourceStar) {
+                    ctx.strokeStyle = (currentMode === 'delete') ? '#ef4444' : '#38bdf8';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius + 6, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            });
+        }
+
+        function saveConstellationCard() {
+            const name = document.getElementById('constellation-name').value.trim() || 'กลุ่มดาวไร้ชื่อ';
+            
+            document.getElementById('modal-title-display').innerText = name;
+            document.getElementById('modal-star-count').innerText = stars.length;
+            document.getElementById('modal-line-count').innerText = lines.length;
+            
+            const now = new Date();
+            document.getElementById('modal-date').innerText = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('card-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('card-modal').classList.add('hidden');
+        }
+        
+        function downloadAlert() {
+            closeModal();
+            alertBox('บันทึกภาพกลุ่มดาวเรียบร้อย! ✨');
+        }
+
+        function alertBox(message) {
+            const alertEl = document.getElementById('custom-alert');
+            document.getElementById('alert-text').innerText = message;
+            alertEl.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                alertEl.classList.add('translate-y-32', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
