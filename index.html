@@ -2,7 +2,7 @@
 <html lang="th" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Starry Night - Constellation Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -41,19 +41,27 @@
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        /* Custom scrollbar for mobile control toolbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
 
     <canvas id="auroraCanvas"></canvas>
 
-    <header class="w-full p-3 sm:p-5 flex flex-wrap justify-between items-center gap-2 ui-layer">
+    <header class="w-full p-2 sm:p-4 flex flex-col sm:flex-row justify-between items-center gap-2 ui-layer">
         <div class="flex items-center space-x-3 pointer-auto shrink-0">
-            <!-- Logo and titles removed as requested -->
+            <!-- Logo area empty as requested -->
         </div>
 
-        <!-- Top Constellation Control Panel in a single row -->
-        <div class="flex flex-wrap items-center gap-2 pointer-auto ml-auto">
+        <!-- Top Constellation Control Panel with horizontal scroll support on mobile -->
+        <div class="flex items-center gap-2 pointer-auto max-w-full overflow-x-auto no-scrollbar py-1 px-1">
             <!-- Developer Badge -->
             <div class="glass-panel px-3 py-1.5 rounded-2xl hidden xl:flex items-center space-x-2.5 shadow-xl border border-white/10 shrink-0">
                 <img src="https://github.com/metawat888/Picture/raw/69f9d3a46e017adc43abb8db3503ea8106ecae61/97488303_2887790847941184_353651305119481856_n.jpg" alt="Mr. Metawat Phongsaphang" class="w-7 h-7 rounded-full object-cover border-2 border-emerald-400/80 shadow-md" onerror="this.src='https://placehold.co/100x100/10b981/ffffff?text=MP'">
@@ -63,27 +71,44 @@
                 </div>
             </div>
 
+            <!-- User Guide Button with Computer & iPad Icons -->
+            <button id="guideBtn" class="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/35 text-indigo-300 text-xs font-semibold transition border border-indigo-500/30 flex items-center space-x-1.5 shadow-md shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01"></path></svg>
+                <span>วิธีใช้งาน</span>
+            </button>
+
             <!-- Star Style Picker (Color & Size) -->
             <div class="glass-panel px-3 py-1.5 rounded-xl flex items-center space-x-2 border border-white/10 shrink-0">
                 <span class="text-[10px] text-gray-400 font-semibold">สี:</span>
                 <div class="flex gap-1.5" id="starColorPicker">
-                    <button class="w-4 h-4 rounded-full bg-white ring-2 ring-white scale-110 color-btn" data-color="#ffffff" title="สีขาว"></button>
-                    <button class="w-4 h-4 rounded-full bg-emerald-400 color-btn" data-color="#34d399" title="สีเขียว"></button>
+                    <button class="w-4 h-4 rounded-full bg-blue-600 color-btn" data-color="#2563eb" title="สีน้ำเงิน"></button>
                     <button class="w-4 h-4 rounded-full bg-cyan-400 color-btn" data-color="#38bdf8" title="สีฟ้า"></button>
-                    <button class="w-4 h-4 rounded-full bg-purple-400 color-btn" data-color="#c084fc" title="สีม่วง"></button>
-                    <button class="w-4 h-4 rounded-full bg-amber-300 color-btn" data-color="#fde047" title="สีเหลือง"></button>
+                    <button class="w-4 h-4 rounded-full bg-white ring-2 ring-white scale-110 color-btn" data-color="#ffffff" title="สีขาว"></button>
+                    <button class="w-4 h-4 rounded-full bg-yellow-200 color-btn" data-color="#fef08a" title="สีเหลืองอ่อน"></button>
+                    <button class="w-4 h-4 rounded-full bg-yellow-500 color-btn" data-color="#eab308" title="สีเหลืองเข้ม"></button>
                     <button class="w-4 h-4 rounded-full bg-orange-500 color-btn" data-color="#f97316" title="สีส้ม"></button>
                     <button class="w-4 h-4 rounded-full bg-red-500 color-btn" data-color="#ef4444" title="สีแดง"></button>
                 </div>
                 <div class="h-4 w-[1px] bg-gray-700 mx-0.5"></div>
                 <span class="text-[10px] text-gray-400 font-semibold">ขนาด:</span>
                 <select id="starSizeSelect" class="bg-gray-900 text-gray-200 text-xs rounded-lg px-1.5 py-1 border border-gray-700 focus:outline-none focus:border-emerald-500">
-                    <option value="3">เล็ก</option>
-                    <option value="5" selected>กลาง</option>
-                    <option value="8">ใหญ่</option>
-                    <option value="12">ยักษ์</option>
+                    <option value="2">ระดับ 1 (เล็กสุด)</option>
+                    <option value="3.5">ระดับ 2</option>
+                    <option value="5" selected>ระดับ 3 (กลาง)</option>
+                    <option value="7">ระดับ 4</option>
+                    <option value="9.5">ระดับ 5</option>
+                    <option value="12">ระดับ 6</option>
+                    <option value="15">ระดับ 7</option>
+                    <option value="18">ระดับ 8 (ใหญ่สุด)</option>
                 </select>
             </div>
+
+            <!-- Toggle Labels Button -->
+            <button id="toggleLabelsBtn" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/35 text-teal-300 text-xs font-semibold transition border border-teal-500/30 flex items-center space-x-1 shadow-md shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                <span id="toggleLabelsText">ซ่อนค่าทั้งหมด</span>
+            </button>
 
             <!-- Delete Selected Star Button -->
             <button id="deleteSelectedStarBtn" class="px-3 py-1.5 rounded-xl bg-orange-500/20 hover:bg-orange-500/35 text-orange-300 text-xs font-semibold transition border border-orange-500/30 flex items-center space-x-1 shadow-md opacity-50 cursor-not-allowed shrink-0" disabled>
@@ -103,7 +128,7 @@
                 <span>ไม่เลือก / ยกเลิก</span>
             </button>
 
-            <!-- Constellation Action Buttons -->
+            <!-- Clear All Button -->
             <button id="clearConstellationBtn" class="px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/35 text-red-300 text-xs font-semibold transition border border-red-500/30 flex items-center space-x-1 shadow-md shrink-0">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 <span>ล้างทั้งหมด</span>
@@ -113,6 +138,78 @@
 
     <main class="flex-grow flex items-center justify-center p-6 ui-layer">
     </main>
+
+    <!-- User Guide Modal -->
+    <div id="guideModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden pointer-auto">
+        <div class="glass-panel p-6 rounded-3xl max-w-lg w-full shadow-2xl border border-white/10 relative text-left">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-indigo-300 flex items-center space-x-2">
+                    <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>คู่มือการใช้งาน (Computer & iPad Optimized)</span>
+                </h3>
+                <button id="closeGuideBtn" class="text-gray-400 hover:text-white p-1 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-3 text-xs text-gray-300 leading-relaxed mb-5 max-h-[60vh] overflow-y-auto pr-1">
+                <!-- Device recommendation banner -->
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-500/30 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <div>
+                            <p class="font-bold text-indigo-200 text-[11px]">คอมพิวเตอร์ (PC/Mac)</p>
+                            <p class="text-[10px] text-gray-400">ใช้เมาส์คลิกและลากวางแม่นยำ</p>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-500/30 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01"></path></svg>
+                        <div>
+                            <p class="font-bold text-indigo-200 text-[11px]">มือถือ & iPad (Pro Precision)</p>
+                            <p class="text-[10px] text-gray-400">แตะ / ลากด้วยนิ้ว หรือ Apple Pencil ตรงจุด 100%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">1</span>
+                    <p><strong>การสร้างดวงดาว:</strong> แตะหน้าจอตรงตำแหน่งที่ต้องการ ดวงดาวจะปรากฏที่ปลายนิ้ว/ปากกาโดยไม่มีการคลาดเคลื่อน</p>
+                </div>
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">2</span>
+                    <p><strong>การย้ายตำแหน่งดาว:</strong> แตะค้างแล้วลากดวงดาวที่สร้างไว้เพื่อจัดตำแหน่งกลุ่มดาวได้อย่างลื่นไหลและแม่นยำระดับพิกเซล</p>
+                </div>
+                    </div>
+                    <div class="bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-500/30 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-indigo-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01"></path></svg>
+                        <div>
+                            <p class="font-bold text-indigo-200 text-[11px]">ไอแพด (iPad/Tablet)</p>
+                            <p class="text-[10px] text-gray-400">ใช้นิ้วแตะและลากหน้าจอ</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">1</span>
+                    <p><strong>การสร้างดวงดาว:</strong> คลิกซ้าย (คอม) หรือแตะหน้าจอ (iPad) เพื่อวางดวงดาว เลือกสีและขนาดได้จากแถบเครื่องมือด้านบน</p>
+                </div>
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">2</span>
+                    <p><strong>การย้ายตำแหน่งดาว:</strong> คลิกค้างหรือใช้นิ้วลากดวงดาวที่สร้างไว้เพื่อจัดตำแหน่งกลุ่มดาวได้อย่างอิสระ</p>
+                </div>
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">3</span>
+                    <p><strong>การเชื่อมเส้น & วัดค่า:</strong> คลิกดาวดวงที่ 1 แล้วคลิกดาวดวงที่ 2 เพื่อสร้างเส้นเชื่อม จะแสดงลูกศรบอกทิศทาง มุม และความยาวที่กึ่งกลางเส้น</p>
+                </div>
+                <div class="flex items-start space-x-2 bg-gray-900/50 p-2.5 rounded-xl border border-white/5">
+                    <span class="bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold shrink-0">4</span>
+                    <p><strong>การวัดมุมระหว่างสองเส้น:</strong> คลิกเลือกเส้นเชื่อม 2 เส้นที่เชื่อมต่อที่จุดเดียวกัน จะแสดงค่ามุมระหว่างสองเส้นเป็นกล่องสีขาวที่จุดดาว</p>
+                </div>
+            </div>
+
+            <button id="guideOkBtn" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md">เข้าใจแล้ว</button>
+        </div>
+    </div>
 
     <div id="msgModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden pointer-auto">
         <div class="glass-panel p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl border border-white/10">
@@ -134,8 +231,24 @@
             document.getElementById('msgModal').classList.add('hidden');
         });
 
+        // User Guide Modal Event Listeners
+        const guideModal = document.getElementById('guideModal');
+        document.getElementById('guideBtn').addEventListener('click', () => {
+            guideModal.classList.remove('hidden');
+        });
+        document.getElementById('closeGuideBtn').addEventListener('click', () => {
+            guideModal.classList.add('hidden');
+        });
+        document.getElementById('guideOkBtn').addEventListener('click', () => {
+            guideModal.classList.add('hidden');
+        });
+
         const canvas = document.getElementById('auroraCanvas');
         const ctx = canvas.getContext('2d');
+
+        // Off-screen canvas for high-performance static Milky Way background
+        let bgCanvas = document.createElement('canvas');
+        let bgCtx = bgCanvas.getContext('2d');
 
         let width, height;
         let stars = [];
@@ -150,6 +263,93 @@
 
         let currentStarColor = '#ffffff';
         let currentStarSize = 5;
+        let showLabels = true;
+
+        function initBackground(dpr) {
+            bgCanvas.width = width * dpr;
+            bgCanvas.height = height * dpr;
+            bgCtx.scale(dpr, dpr);
+
+            // 1. Base Dark Night Sky Gradient
+            const bgGradient = bgCtx.createLinearGradient(0, 0, 0, height);
+            bgGradient.addColorStop(0, '#01040f');
+            bgGradient.addColorStop(0.5, '#060d21');
+            bgGradient.addColorStop(1, '#0f172a');
+            bgCtx.fillStyle = bgGradient;
+            bgCtx.fillRect(0, 0, width, height);
+
+            // 2. Milky Way Dust Clouds (Nebula effect)
+            bgCtx.save();
+            bgCtx.globalCompositeOperation = 'screen';
+            
+            const numClouds = 150; 
+            for (let i = 0; i < numClouds; i++) {
+                const progress = i / numClouds;
+                
+                // Diagonal path from bottom-left to top-right
+                const baseX = -width * 0.2 + (width * 1.4) * progress;
+                const baseY = height * 1.2 - (height * 1.4) * progress;
+                
+                // Spread for a natural organic band
+                const spread = (Math.random() + Math.random() + Math.random() - 1.5);
+                const spreadRadius = (width < 768 ? 150 : 300);
+                
+                const x = baseX - spread * spreadRadius;
+                const y = baseY - spread * spreadRadius;
+                
+                const radius = 80 + Math.random() * 200;
+                
+                const grad = bgCtx.createRadialGradient(x, y, 0, x, y, radius);
+                
+                // Cosmic Colors
+                const colorChoice = Math.random();
+                let r, g, b;
+                if (colorChoice < 0.4) { r = 25; g = 35; b = 80; } // Cosmic Blue
+                else if (colorChoice < 0.7) { r = 50; g = 25; b = 70; } // Deep Purple
+                else { r = 20; g = 50; b = 70; } // Teal/Cyan hint
+                
+                const density = 1 - Math.abs(spread) / 1.5;
+                const alpha = (0.015 + Math.random() * 0.035) * Math.max(0.1, density);
+                
+                grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+                grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+                
+                bgCtx.fillStyle = grad;
+                bgCtx.beginPath();
+                bgCtx.arc(x, y, radius, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+            bgCtx.restore();
+
+            // 3. Dense Milky Way Stardust
+            bgCtx.save();
+            for (let i = 0; i < 2500; i++) {
+                const progress = Math.random();
+                const baseX = -width * 0.2 + (width * 1.4) * progress;
+                const baseY = height * 1.2 - (height * 1.4) * progress;
+                
+                const spread = (Math.random() + Math.random() + Math.random() - 1.5);
+                const spreadRadius = (width < 768 ? 120 : 280);
+                
+                const x = baseX - spread * spreadRadius + (Math.random()-0.5)*60;
+                const y = baseY - spread * spreadRadius + (Math.random()-0.5)*60;
+                
+                const size = Math.random() * 1.2 + 0.1;
+                const density = 1 - Math.abs(spread) / 1.5;
+                const alpha = (Math.random() * 0.7 + 0.1) * Math.max(0.2, density);
+                
+                const colorRnd = Math.random();
+                let starColor = `rgba(255, 255, 255, ${alpha})`;
+                if (colorRnd > 0.8) starColor = `rgba(200, 230, 255, ${alpha})`; // Blue giant
+                else if (colorRnd > 0.6) starColor = `rgba(255, 240, 210, ${alpha})`; // Yellow/Red dwarf
+                
+                bgCtx.fillStyle = starColor;
+                bgCtx.beginPath();
+                bgCtx.arc(x, y, size, 0, Math.PI*2);
+                bgCtx.fill();
+            }
+            bgCtx.restore();
+        }
 
         function initResize() {
             const dpr = window.devicePixelRatio || 1;
@@ -158,6 +358,9 @@
             canvas.width = width * dpr;
             canvas.height = height * dpr;
             ctx.scale(dpr, dpr);
+
+            // Generate the Milky Way background once on load/resize
+            initBackground(dpr);
         }
 
         function initStars() {
@@ -181,6 +384,164 @@
         initResize();
         initStars();
 
+        function getPointerCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            // Direct 1:1 sub-pixel screen space calculation for extreme accuracy across all scale factors
+            const scaleX = width / rect.width;
+            const scaleY = height / rect.height;
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+
+        function handlePointerDown(e) {
+            // Ignore events over HTML UI overlays
+            if (e.target.closest('header') || e.target.closest('#msgModal') || e.target.closest('#guideModal')) {
+                return;
+            }
+
+            const coords = getPointerCoordinates(e);
+            const x = coords.x;
+            const y = coords.y;
+
+            // Smart detection area: wider touch hit target for fingers, precision hit target for Apple Pencil / Mouse
+            const isTouch = e.pointerType === 'touch';
+            const hitThreshold = isTouch ? Math.max(34, window.innerWidth < 640 ? 36 : 28) : 22;
+
+            // 1. Check if tapping on an existing custom star
+            for (let i = 0; i < customStars.length; i++) {
+                const s = customStars[i];
+                const dist = Math.hypot(s.x - x, s.y - y);
+                if (dist <= Math.max(s.size * 2.8, hitThreshold)) {
+                    draggingStarIndex = i;
+                    dragOffset = { x: x - s.x, y: y - s.y };
+
+                    if (selectedStarIndex === null) {
+                        selectedStarIndex = i;
+                    } else if (selectedStarIndex === i) {
+                        // Keep current selection
+                    } else {
+                        // Connect stars if not already connected
+                        const exists = connections.some(c => 
+                            (c.from === selectedStarIndex && c.to === i) || 
+                            (c.from === i && c.to === selectedStarIndex)
+                        );
+                        if (!exists) {
+                            connections.push({ from: selectedStarIndex, to: i });
+                        }
+                        selectedStarIndex = i;
+                    }
+                    updateDeleteButtonState();
+                    return;
+                }
+            }
+
+            // 2. Check if tapping near a connection line
+            let clickedLineIdx = null;
+            for (let i = 0; i < connections.length; i++) {
+                const conn = connections[i];
+                const s1 = customStars[conn.from];
+                const s2 = customStars[conn.to];
+                if (s1 && s2) {
+                    const A = x - s1.x;
+                    const B = y - s1.y;
+                    const C = s2.x - s1.x;
+                    const D = s2.y - s1.y;
+
+                    const dot = A * C + B * D;
+                    const lenSq = C * C + D * D;
+                    let param = -1;
+                    if (lenSq !== 0) param = dot / lenSq;
+
+                    let xx, yy;
+                    if (param < 0) {
+                        xx = s1.x;
+                        yy = s1.y;
+                    } else if (param > 1) {
+                        xx = s2.x;
+                        yy = s2.y;
+                    } else {
+                        xx = s1.x + param * C;
+                        yy = s1.y + param * D;
+                    }
+
+                    const lineDist = Math.hypot(x - xx, y - yy);
+                    if (lineDist < (isTouch ? 26 : 18)) {
+                        clickedLineIdx = i;
+                        break;
+                    }
+                }
+            }
+
+            if (clickedLineIdx !== null) {
+                selectedStarIndex = null;
+                const idxInSelected = selectedLineIndices.indexOf(clickedLineIdx);
+                if (idxInSelected !== -1) {
+                    selectedLineIndices.splice(idxInSelected, 1);
+                } else {
+                    if (selectedLineIndices.length >= 2) {
+                        selectedLineIndices.shift();
+                    }
+                    selectedLineIndices.push(clickedLineIdx);
+                }
+                updateDeleteButtonState();
+                return;
+            }
+
+            // 3. Otherwise create new custom star placed EXACTLY under fingertip / cursor
+            draggingStarIndex = null;
+            selectedLineIndices = [];
+            customStars.push({
+                x: x,
+                y: y,
+                color: currentStarColor,
+                size: currentStarSize,
+                alpha: 1.0
+            });
+            selectedStarIndex = customStars.length - 1;
+            updateDeleteButtonState();
+        }
+
+        function handlePointerMove(e) {
+            if (draggingStarIndex !== null && draggingStarIndex < customStars.length) {
+                const coords = getPointerCoordinates(e);
+                customStars[draggingStarIndex].x = coords.x - dragOffset.x;
+                customStars[draggingStarIndex].y = coords.y - dragOffset.y;
+            }
+        }
+
+        function handlePointerUp() {
+            draggingStarIndex = null;
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            try {
+                canvas.setPointerCapture(e.pointerId);
+            } catch (err) {}
+            handlePointerDown(e);
+        }, { passive: false });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (draggingStarIndex !== null) {
+                e.preventDefault();
+                handlePointerMove(e);
+            }
+        }, { passive: false });
+
+        const endPointer = (e) => {
+            try {
+                if (canvas.hasPointerCapture(e.pointerId)) {
+                    canvas.releasePointerCapture(e.pointerId);
+                }
+            } catch (err) {}
+            handlePointerUp();
+        };
+
+        canvas.addEventListener('pointerup', endPointer, { passive: true });
+        canvas.addEventListener('pointercancel', endPointer, { passive: true });
+
         // Star Color Picker UI
         document.querySelectorAll('.color-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -192,7 +553,20 @@
         });
 
         document.getElementById('starSizeSelect').addEventListener('change', (e) => {
-            currentStarSize = parseInt(e.target.value);
+            currentStarSize = parseFloat(e.target.value);
+        });
+
+        document.getElementById('toggleLabelsBtn').addEventListener('click', () => {
+            showLabels = !showLabels;
+            const btnText = document.getElementById('toggleLabelsText');
+            const btn = document.getElementById('toggleLabelsBtn');
+            if (showLabels) {
+                btnText.innerText = 'ซ่อนค่าทั้งหมด';
+                btn.className = 'px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/35 text-teal-300 text-xs font-semibold transition border border-teal-500/30 flex items-center space-x-1 shadow-md shrink-0';
+            } else {
+                btnText.innerText = 'แสดงค่าทั้งหมด';
+                btn.className = 'px-3 py-1.5 rounded-xl bg-gray-700/40 hover:bg-gray-700/70 text-gray-300 text-xs font-semibold transition border border-gray-600/40 flex items-center space-x-1 shadow-md shrink-0';
+            }
         });
 
         function updateDeleteButtonState() {
@@ -224,147 +598,6 @@
         document.getElementById('deselectBtn').addEventListener('click', () => {
             deselectAll();
         });
-
-        function getCanvasCoordinates(clientX, clientY) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        function handlePointerDown(clientX, clientY) {
-            if (event.target.closest('header') || event.target.closest('#msgModal')) {
-                return;
-            }
-
-            const coords = getCanvasCoordinates(clientX, clientY);
-            const x = coords.x;
-            const y = coords.y;
-
-            // Check if clicking existing custom star
-            for (let i = 0; i < customStars.length; i++) {
-                const s = customStars[i];
-                const dist = Math.hypot(s.x - x, s.y - y);
-                if (dist <= Math.max(s.size * 2.5, 24)) {
-                    draggingStarIndex = i;
-                    dragOffset = { x: x - s.x, y: y - s.y };
-
-                    if (selectedStarIndex === null) {
-                        selectedStarIndex = i;
-                    } else if (selectedStarIndex === i) {
-                        // Toggle keep
-                    } else {
-                        // Connect the two stars if not already connected
-                        const exists = connections.some(c => 
-                            (c.from === selectedStarIndex && c.to === i) || 
-                            (c.from === i && c.to === selectedStarIndex)
-                        );
-                        if (!exists) {
-                            connections.push({ from: selectedStarIndex, to: i });
-                        }
-                        selectedStarIndex = i;
-                    }
-                    updateDeleteButtonState();
-                    return;
-                }
-            }
-
-            // Check if clicking near a connection line to select it for deletion or angle measurement
-            let clickedLineIdx = null;
-            for (let i = 0; i < connections.length; i++) {
-                const conn = connections[i];
-                const s1 = customStars[conn.from];
-                const s2 = customStars[conn.to];
-                if (s1 && s2) {
-                    const A = x - s1.x;
-                    const B = y - s1.y;
-                    const C = s2.x - s1.x;
-                    const D = s2.y - s1.y;
-
-                    const dot = A * C + B * D;
-                    const lenSq = C * C + D * D;
-                    let param = -1;
-                    if (lenSq !== 0) param = dot / lenSq;
-
-                    let xx, yy;
-                    if (param < 0) {
-                        xx = s1.x;
-                        yy = s1.y;
-                    } else if (param > 1) {
-                        xx = s2.x;
-                        yy = s2.y;
-                    } else {
-                        xx = s1.x + param * C;
-                        yy = s1.y + param * D;
-                    }
-
-                    const lineDist = Math.hypot(x - xx, y - yy);
-                    if (lineDist < 16) {
-                        clickedLineIdx = i;
-                        break;
-                    }
-                }
-            }
-
-            if (clickedLineIdx !== null) {
-                selectedStarIndex = null;
-                const idxInSelected = selectedLineIndices.indexOf(clickedLineIdx);
-                if (idxInSelected !== -1) {
-                    selectedLineIndices.splice(idxInSelected, 1);
-                } else {
-                    if (selectedLineIndices.length >= 2) {
-                        selectedLineIndices.shift();
-                    }
-                    selectedLineIndices.push(clickedLineIdx);
-                }
-                updateDeleteButtonState();
-                return;
-            }
-
-            // Otherwise create new custom star with currently selected color and size
-            draggingStarIndex = null;
-            selectedLineIndices = [];
-            customStars.push({
-                x: x,
-                y: y,
-                color: currentStarColor,
-                size: currentStarSize,
-                alpha: 1.0
-            });
-            selectedStarIndex = customStars.length - 1;
-            updateDeleteButtonState();
-        }
-
-        function handlePointerMove(clientX, clientY) {
-            if (draggingStarIndex !== null && draggingStarIndex < customStars.length) {
-                const coords = getCanvasCoordinates(clientX, clientY);
-                customStars[draggingStarIndex].x = coords.x - dragOffset.x;
-                customStars[draggingStarIndex].y = coords.y - dragOffset.y;
-            }
-        }
-
-        function handlePointerUp() {
-            draggingStarIndex = null;
-        }
-
-        canvas.addEventListener('mousedown', (e) => handlePointerDown(e.clientX, e.clientY));
-        window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
-        window.addEventListener('mouseup', handlePointerUp);
-
-        canvas.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        }, { passive: true });
-
-        canvas.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 1) {
-                handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        }, { passive: true });
-
-        canvas.addEventListener('touchend', handlePointerUp);
 
         document.getElementById('deleteSelectedStarBtn').addEventListener('click', () => {
             if (selectedStarIndex !== null && selectedStarIndex < customStars.length) {
@@ -415,12 +648,8 @@
         }
 
         function draw() {
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
-            bgGradient.addColorStop(0, '#01040f');
-            bgGradient.addColorStop(0.5, '#060d21');
-            bgGradient.addColorStop(1, '#0f172a');
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, width, height);
+            // Draw the pre-rendered static Milky Way background
+            ctx.drawImage(bgCanvas, 0, 0, width, height);
 
             // Draw Background Twinkling Stars
             ctx.save();
@@ -489,8 +718,8 @@
 
                     // Arrowhead
                     const angle = Math.atan2(s2.y - s1.y, s2.x - s1.x);
-                    const arrowLen = 14;
-                    const stopDist = s2.size + 10;
+                    const arrowLen = 9;
+                    const stopDist = s2.size + 8;
                     const arrowX = s2.x - Math.cos(angle) * stopDist;
                     const arrowY = s2.y - Math.sin(angle) * stopDist;
 
@@ -508,36 +737,38 @@
                     ctx.closePath();
                     ctx.fill();
 
-                    let deg = angle * (180 / Math.PI);
-                    if (deg < 0) deg += 360;
+                    if (showLabels) {
+                        let deg = angle * (180 / Math.PI);
+                        if (deg < 0) deg += 360;
 
-                    const lengthPx = Math.hypot(s2.x - s1.x, s2.y - s1.y);
-                    const lengthText = `${lengthPx.toFixed(0)}`;
-                    const angleText = `${deg.toFixed(1)}°`;
-                    const combinedText = `${angleText} | ${lengthText}`;
+                        const lengthPx = Math.hypot(s2.x - s1.x, s2.y - s1.y);
+                        const lengthText = `${lengthPx.toFixed(0)}`;
+                        const angleText = `${deg.toFixed(1)}°`;
+                        const combinedText = `${angleText} | ${lengthText}`;
 
-                    const midX = (s1.x + s2.x) / 2;
-                    const midY = (s1.y + s2.y) / 2;
+                        const midX = (s1.x + s2.x) / 2;
+                        const midY = (s1.y + s2.y) / 2;
 
-                    ctx.font = '600 11px Prompt, sans-serif';
-                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
-                    const textWidth = ctx.measureText(combinedText).width;
+                        ctx.font = '600 11px Prompt, sans-serif';
+                        ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                        const textWidth = ctx.measureText(combinedText).width;
 
-                    ctx.fillRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
-                    ctx.strokeStyle = isSelected ? '#ec4899' : 'rgba(56, 189, 248, 0.6)';
-                    ctx.lineWidth = 1.2;
-                    ctx.strokeRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
+                        ctx.fillRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
+                        ctx.strokeStyle = isSelected ? '#ec4899' : 'rgba(56, 189, 248, 0.6)';
+                        ctx.lineWidth = 1.2;
+                        ctx.strokeRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
 
-                    ctx.fillStyle = isSelected ? '#f472b6' : '#38bdf8';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(combinedText, midX, midY);
+                        ctx.fillStyle = isSelected ? '#f472b6' : '#38bdf8';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(combinedText, midX, midY);
+                    }
                 }
             }
             ctx.restore();
 
             // If exactly 2 lines are selected, calculate and display angle between them if they share a common star vertex
-            if (selectedLineIndices.length === 2) {
+            if (showLabels && selectedLineIndices.length === 2) {
                 const l1 = connections[selectedLineIndices[0]];
                 const l2 = connections[selectedLineIndices[1]];
                 if (l1 && l2) {
@@ -594,7 +825,7 @@
                 }
             }
 
-            // Draw Custom Constellation Stars with their individual stored color properties
+            // Draw Custom Constellation Stars with their individual stored color properties (Uniform fill, no white core)
             ctx.save();
             for (let i = 0; i < customStars.length; i++) {
                 const s = customStars[i];
@@ -606,11 +837,11 @@
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Inner bright core matching the chosen star color instead of solid white
+                // Inner core matching the star color uniformly
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = s.color;
                 ctx.beginPath();
-                ctx.arc(s.x, s.y, s.size * 0.7, 0, Math.PI * 2);
+                ctx.arc(s.x, s.y, s.size * 0.85, 0, Math.PI * 2);
                 ctx.fill();
 
                 if (i === selectedStarIndex) {
