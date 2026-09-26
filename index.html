@@ -2,8 +2,8 @@
 <html lang="th" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Starry Night - Constellation Creator with Cloud Sync</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Starry Night - Constellation Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -14,6 +14,7 @@
             overflow-x: hidden;
             user-select: none;
             -webkit-user-select: none;
+            touch-action: none;
         }
         canvas {
             display: block;
@@ -51,7 +52,7 @@
             <!-- Logo and titles removed as requested -->
         </div>
 
-        <!-- Top Constellation Control & Cloud Sync Panel in a single row -->
+        <!-- Top Constellation Control Panel in a single row -->
         <div class="flex flex-wrap items-center gap-2 pointer-auto ml-auto">
             <!-- Developer Badge -->
             <div class="glass-panel px-3 py-1.5 rounded-2xl hidden xl:flex items-center space-x-2.5 shadow-xl border border-white/10 shrink-0">
@@ -67,7 +68,9 @@
                 <span class="text-[10px] text-gray-400 font-semibold">สี:</span>
                 <div class="flex gap-1.5" id="starColorPicker">
                     <button class="w-4 h-4 rounded-full bg-white ring-2 ring-white scale-110 color-btn" data-color="#ffffff" title="สีขาว"></button>
+                    <button class="w-4 h-4 rounded-full bg-emerald-400 color-btn" data-color="#34d399" title="สีเขียว"></button>
                     <button class="w-4 h-4 rounded-full bg-cyan-400 color-btn" data-color="#38bdf8" title="สีฟ้า"></button>
+                    <button class="w-4 h-4 rounded-full bg-purple-400 color-btn" data-color="#c084fc" title="สีม่วง"></button>
                     <button class="w-4 h-4 rounded-full bg-amber-300 color-btn" data-color="#fde047" title="สีเหลือง"></button>
                     <button class="w-4 h-4 rounded-full bg-orange-500 color-btn" data-color="#f97316" title="สีส้ม"></button>
                     <button class="w-4 h-4 rounded-full bg-red-500 color-btn" data-color="#ef4444" title="สีแดง"></button>
@@ -105,47 +108,12 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 <span>ล้างทั้งหมด</span>
             </button>
-
-            <!-- Cloud Presets Button -->
-            <button id="openCloudModal" class="glass-panel px-3.5 py-1.5 rounded-xl text-xs font-semibold hover:bg-gray-800/80 transition flex items-center space-x-1.5 shadow-lg text-emerald-300 border border-emerald-500/20 shrink-0">
-                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h10a4 4 0 004-4m-4-5l-4-4m0 0l-4 4m4-4v12"></path></svg>
-                <span>กลุ่มดาวในคลาวด์</span>
-            </button>
         </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center p-6 ui-layer">
     </main>
 
-    <div id="cloudModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden pointer-auto">
-        <div class="glass-panel p-6 sm:p-8 rounded-3xl max-w-md w-full shadow-2xl border border-white/10 relative max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h10a4 4 0 004-4m-4-5l-4-4m0 0l-4 4m4-4v12"></path></svg>
-                    <span>บันทึกและโหลดกลุ่มดาวผ่านคลาวด์</span>
-                </h3>
-                <button id="closeModalBtn" class="text-gray-400 hover:text-white text-xl font-bold p-1">&times;</button>
-            </div>
-
-            <div class="mb-4">
-                <label class="block text-xs text-gray-300 mb-1 font-medium">ชื่อกลุ่มดาวของคุณ</label>
-                <div class="flex gap-2">
-                    <input id="presetNameInput" type="text" placeholder="เช่น กลุ่มดาวหมีใหญ่..." class="flex-grow bg-gray-900/80 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <button id="savePresetBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-md whitespace-nowrap">บันทึก</button>
-                </div>
-            </div>
-
-            <div class="flex-grow overflow-y-auto space-y-2.5 pr-1" id="presetsListContainer">
-                <p class="text-xs text-gray-400 text-center py-6">กำลังโหลดข้อมูลกลุ่มดาวจากคลาวด์...</p>
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-gray-800 text-[11px] text-gray-400 text-center">
-                User ID: <span id="currentUserIdDisplay" class="font-mono text-emerald-400">กำลังเชื่อมต่อ...</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Modal -->
     <div id="msgModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden pointer-auto">
         <div class="glass-panel p-6 rounded-2xl max-w-sm w-full text-center shadow-2xl border border-white/10">
             <p id="msgText" class="text-sm text-gray-200 mb-4 font-medium"></p>
@@ -154,14 +122,10 @@
     </div>
 
     <footer class="w-full p-4 text-center text-xs text-gray-400 ui-layer">
-        สร้างสรรค์โดย <span class="text-emerald-400 font-semibold">Mr. Metawat Phongsaphang</span> &bull; HTML5 Canvas & Firebase DB
+        สร้างสรรค์โดย <span class="text-emerald-400 font-semibold">Mr. Metawat Phongsaphang</span> &bull; HTML5 Canvas
     </footer>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         function showMessage(text) {
             document.getElementById('msgText').innerText = text;
             document.getElementById('msgModal').classList.remove('hidden');
@@ -169,52 +133,6 @@
         document.getElementById('msgOkBtn').addEventListener('click', () => {
             document.getElementById('msgModal').classList.add('hidden');
         });
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'starry-sky-cloud-app';
-        let firebaseConfig = {};
-        try {
-            firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        } catch (e) {
-            console.warn('Firebase config unavailable, running in local-only demo mode.');
-        }
-
-        let db = null;
-        let auth = null;
-        let userId = 'demo-user-' + Math.random().toString(36).substring(2, 8);
-
-        if (Object.keys(firebaseConfig).length > 0) {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                        userId = auth.currentUser?.uid || userId;
-                        const userDisp = document.getElementById('currentUserIdDisplay');
-                        if (userDisp) userDisp.innerText = userId;
-                        loadCloudPresets();
-                    } catch (err) {
-                        console.error("Auth error:", err);
-                        const userDisp = document.getElementById('currentUserIdDisplay');
-                        if (userDisp) userDisp.innerText = userId + ' (Local)';
-                    }
-                };
-                initAuth();
-            } catch (e) {
-                console.error("Firebase init error:", e);
-                const userDisp = document.getElementById('currentUserIdDisplay');
-                if (userDisp) userDisp.innerText = userId + ' (Offline)';
-            }
-        } else {
-            const userDisp = document.getElementById('currentUserIdDisplay');
-            if (userDisp) userDisp.innerText = userId + ' (Demo Mode)';
-        }
 
         const canvas = document.getElementById('auroraCanvas');
         const ctx = canvas.getContext('2d');
@@ -225,7 +143,7 @@
         let customStars = [];
         let connections = [];
         let selectedStarIndex = null;
-        let selectedLineIndex = null;
+        let selectedLineIndices = []; 
         let draggingStarIndex = null;
         let dragOffset = { x: 0, y: 0 };
         const starCount = 200;
@@ -234,8 +152,12 @@
         let currentStarSize = 5;
 
         function initResize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
         }
 
         function initStars() {
@@ -244,7 +166,7 @@
                 stars.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    size: Math.random() * 1.8 + 0.2,
+                    size: Math.random() * 2.0 + 0.4,
                     alpha: Math.random(),
                     twinkleSpeed: 0.008 + Math.random() * 0.025
                 });
@@ -284,7 +206,7 @@
             }
 
             const btnLine = document.getElementById('deleteSelectedLineBtn');
-            if (selectedLineIndex !== null) {
+            if (selectedLineIndices.length > 0) {
                 btnLine.disabled = false;
                 btnLine.classList.remove('opacity-50', 'cursor-not-allowed');
             } else {
@@ -295,7 +217,7 @@
 
         function deselectAll() {
             selectedStarIndex = null;
-            selectedLineIndex = null;
+            selectedLineIndices = [];
             updateDeleteButtonState();
         }
 
@@ -312,7 +234,7 @@
         }
 
         function handlePointerDown(clientX, clientY) {
-            if (event.target.closest('header') || event.target.closest('#cloudModal') || event.target.closest('#msgModal')) {
+            if (event.target.closest('header') || event.target.closest('#msgModal')) {
                 return;
             }
 
@@ -324,10 +246,9 @@
             for (let i = 0; i < customStars.length; i++) {
                 const s = customStars[i];
                 const dist = Math.hypot(s.x - x, s.y - y);
-                if (dist <= Math.max(s.size * 2, 20)) {
+                if (dist <= Math.max(s.size * 2.5, 24)) {
                     draggingStarIndex = i;
                     dragOffset = { x: x - s.x, y: y - s.y };
-                    selectedLineIndex = null;
 
                     if (selectedStarIndex === null) {
                         selectedStarIndex = i;
@@ -349,7 +270,7 @@
                 }
             }
 
-            // Check if clicking near a connection line to select it for deletion
+            // Check if clicking near a connection line to select it for deletion or angle measurement
             let clickedLineIdx = null;
             for (let i = 0; i < connections.length; i++) {
                 const conn = connections[i];
@@ -379,7 +300,7 @@
                     }
 
                     const lineDist = Math.hypot(x - xx, y - yy);
-                    if (lineDist < 12) {
+                    if (lineDist < 16) {
                         clickedLineIdx = i;
                         break;
                     }
@@ -387,22 +308,29 @@
             }
 
             if (clickedLineIdx !== null) {
-                selectedLineIndex = clickedLineIdx;
                 selectedStarIndex = null;
+                const idxInSelected = selectedLineIndices.indexOf(clickedLineIdx);
+                if (idxInSelected !== -1) {
+                    selectedLineIndices.splice(idxInSelected, 1);
+                } else {
+                    if (selectedLineIndices.length >= 2) {
+                        selectedLineIndices.shift();
+                    }
+                    selectedLineIndices.push(clickedLineIdx);
+                }
                 updateDeleteButtonState();
                 return;
             }
 
-            // Otherwise create new custom star if not dragging
+            // Otherwise create new custom star with currently selected color and size
             draggingStarIndex = null;
-            selectedLineIndex = null;
+            selectedLineIndices = [];
             customStars.push({
                 x: x,
                 y: y,
                 color: currentStarColor,
                 size: currentStarSize,
-                alpha: 1.0,
-                pulseSpeed: 0.02 + Math.random() * 0.02
+                alpha: 1.0
             });
             selectedStarIndex = customStars.length - 1;
             updateDeleteButtonState();
@@ -452,9 +380,14 @@
         });
 
         document.getElementById('deleteSelectedLineBtn').addEventListener('click', () => {
-            if (selectedLineIndex !== null && selectedLineIndex < connections.length) {
-                connections.splice(selectedLineIndex, 1);
-                selectedLineIndex = null;
+            if (selectedLineIndices.length > 0) {
+                selectedLineIndices.sort((a, b) => b - a);
+                selectedLineIndices.forEach(idx => {
+                    if (idx < connections.length) {
+                        connections.splice(idx, 1);
+                    }
+                });
+                selectedLineIndices = [];
                 updateDeleteButtonState();
             }
         });
@@ -463,7 +396,7 @@
             customStars = [];
             connections = [];
             selectedStarIndex = null;
-            selectedLineIndex = null;
+            selectedLineIndices = [];
             updateDeleteButtonState();
             showMessage('ล้างกลุ่มดาวทั้งหมดเรียบร้อยแล้ว');
         });
@@ -504,7 +437,7 @@
             // Spawn & Draw Shooting Stars (Meteors)
             spawnMeteor();
             ctx.save();
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
             for (let i = meteors.length - 1; i >= 0; i--) {
                 let m = meteors[i];
                 const grad = ctx.createLinearGradient(
@@ -531,39 +464,160 @@
             }
             ctx.restore();
 
-            // Draw Constellation Lines
+            // Draw Constellation Lines with Directional Arrowheads & Midpoint Angle
             ctx.save();
             for (let i = 0; i < connections.length; i++) {
                 const conn = connections[i];
                 const s1 = customStars[conn.from];
                 const s2 = customStars[conn.to];
                 if (s1 && s2) {
-                    ctx.strokeStyle = (i === selectedLineIndex) ? '#ec4899' : 'rgba(56, 189, 248, 0.6)';
-                    ctx.lineWidth = (i === selectedLineIndex) ? 3 : 2;
+                    const isSelected = selectedLineIndices.includes(i);
+                    
+                    ctx.strokeStyle = isSelected ? 'rgba(236, 72, 153, 0.4)' : 'rgba(56, 189, 248, 0.3)';
+                    ctx.lineWidth = isSelected ? 8 : 5;
                     ctx.beginPath();
                     ctx.moveTo(s1.x, s1.y);
                     ctx.lineTo(s2.x, s2.y);
                     ctx.stroke();
+
+                    ctx.strokeStyle = isSelected ? '#ec4899' : '#38bdf8';
+                    ctx.lineWidth = isSelected ? 3.5 : 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(s1.x, s1.y);
+                    ctx.lineTo(s2.x, s2.y);
+                    ctx.stroke();
+
+                    // Arrowhead
+                    const angle = Math.atan2(s2.y - s1.y, s2.x - s1.x);
+                    const arrowLen = 14;
+                    const stopDist = s2.size + 10;
+                    const arrowX = s2.x - Math.cos(angle) * stopDist;
+                    const arrowY = s2.y - Math.sin(angle) * stopDist;
+
+                    ctx.fillStyle = isSelected ? '#ec4899' : '#38bdf8';
+                    ctx.beginPath();
+                    ctx.moveTo(arrowX, arrowY);
+                    ctx.lineTo(
+                        arrowX - arrowLen * Math.cos(angle - Math.PI / 6),
+                        arrowY - arrowLen * Math.sin(angle - Math.PI / 6)
+                    );
+                    ctx.lineTo(
+                        arrowX - arrowLen * Math.cos(angle + Math.PI / 6),
+                        arrowY - arrowLen * Math.sin(angle + Math.PI / 6)
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+
+                    let deg = angle * (180 / Math.PI);
+                    if (deg < 0) deg += 360;
+
+                    const lengthPx = Math.hypot(s2.x - s1.x, s2.y - s1.y);
+                    const lengthText = `${lengthPx.toFixed(0)}`;
+                    const angleText = `${deg.toFixed(1)}°`;
+                    const combinedText = `${angleText} | ${lengthText}`;
+
+                    const midX = (s1.x + s2.x) / 2;
+                    const midY = (s1.y + s2.y) / 2;
+
+                    ctx.font = '600 11px Prompt, sans-serif';
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                    const textWidth = ctx.measureText(combinedText).width;
+
+                    ctx.fillRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
+                    ctx.strokeStyle = isSelected ? '#ec4899' : 'rgba(56, 189, 248, 0.6)';
+                    ctx.lineWidth = 1.2;
+                    ctx.strokeRect(midX - textWidth / 2 - 5, midY - 9, textWidth + 10, 18);
+
+                    ctx.fillStyle = isSelected ? '#f472b6' : '#38bdf8';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(combinedText, midX, midY);
                 }
             }
             ctx.restore();
 
-            // Draw Custom Constellation Stars
+            // If exactly 2 lines are selected, calculate and display angle between them if they share a common star vertex
+            if (selectedLineIndices.length === 2) {
+                const l1 = connections[selectedLineIndices[0]];
+                const l2 = connections[selectedLineIndices[1]];
+                if (l1 && l2) {
+                    let commonNode = null;
+                    let other1 = null;
+                    let other2 = null;
+
+                    if (l1.from === l2.from) {
+                        commonNode = l1.from;
+                        other1 = l1.to;
+                        other2 = l2.to;
+                    } else if (l1.from === l2.to) {
+                        commonNode = l1.from;
+                        other1 = l1.to;
+                        other2 = l2.from;
+                    } else if (l1.to === l2.from) {
+                        commonNode = l1.to;
+                        other1 = l1.from;
+                        other2 = l2.to;
+                    } else if (l1.to === l2.to) {
+                        commonNode = l1.to;
+                        other1 = l1.from;
+                        other2 = l2.from;
+                    }
+
+                    if (commonNode !== null && customStars[commonNode] && customStars[other1] && customStars[other2]) {
+                        const cStar = customStars[commonNode];
+                        const o1 = customStars[other1];
+                        const o2 = customStars[other2];
+
+                        const a1 = Math.atan2(o1.y - cStar.y, o1.x - cStar.x);
+                        const a2 = Math.atan2(o2.y - cStar.y, o2.x - cStar.x);
+
+                        let angleDiff = Math.abs((a1 - a2) * (180 / Math.PI));
+                        if (angleDiff > 180) angleDiff = 360 - angleDiff;
+
+                        ctx.save();
+                        ctx.font = '700 14px Prompt, sans-serif';
+                        const angleText = `${angleDiff.toFixed(1)}°`;
+                        const tw = ctx.measureText(angleText).width;
+
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                        ctx.fillRect(cStar.x - tw / 2 - 8, cStar.y - 36, tw + 16, 26);
+                        ctx.strokeStyle = '#ec4899';
+                        ctx.lineWidth = 1.5;
+                        ctx.strokeRect(cStar.x - tw / 2 - 8, cStar.y - 36, tw + 16, 26);
+
+                        ctx.fillStyle = '#db2777';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(angleText, cStar.x, cStar.y - 23);
+                        ctx.restore();
+                    }
+                }
+            }
+
+            // Draw Custom Constellation Stars with their individual stored color properties
             ctx.save();
             for (let i = 0; i < customStars.length; i++) {
                 const s = customStars[i];
-                ctx.fillStyle = s.color;
+                
                 ctx.shadowColor = s.color;
-                ctx.shadowBlur = 15;
+                ctx.shadowBlur = 22;
+                ctx.fillStyle = s.color;
                 ctx.beginPath();
                 ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
                 ctx.fill();
 
+                // Inner bright core matching the chosen star color instead of solid white
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+
                 if (i === selectedStarIndex) {
                     ctx.strokeStyle = '#38bdf8';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 3;
                     ctx.beginPath();
-                    ctx.arc(s.x, s.y, s.size + 6, 0, Math.PI * 2);
+                    ctx.arc(s.x, s.y, s.size + 10, 0, Math.PI * 2);
                     ctx.stroke();
                 }
             }
@@ -573,118 +627,6 @@
         }
 
         draw();
-
-        // Cloud Modal & Firebase integration
-        const cloudModal = document.getElementById('cloudModal');
-        document.getElementById('openCloudModal').addEventListener('click', () => {
-            cloudModal.classList.remove('hidden');
-            loadCloudPresets();
-        });
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
-            cloudModal.classList.add('hidden');
-        });
-
-        document.getElementById('savePresetBtn').addEventListener('click', async () => {
-            const name = document.getElementById('presetNameInput').value.trim();
-            if (!name) {
-                showMessage('กรุณาใส่ชื่อกลุ่มดาว');
-                return;
-            }
-            if (customStars.length === 0) {
-                showMessage('กรุณาสร้างดาวอย่างน้อย 1 ดวงก่อนบันทึก');
-                return;
-            }
-
-            if (!db) {
-                showMessage('โหมดจำลอง: บันทึกข้อมูลแบบออฟไลน์สำเร็จ');
-                cloudModal.classList.add('hidden');
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'constellations'), {
-                    name: name,
-                    stars: customStars,
-                    connections: connections,
-                    createdAt: new Date().toISOString()
-                });
-                document.getElementById('presetNameInput').value = '';
-                showMessage('บันทึกกลุ่มดาวลงคลาวด์สำเร็จ!');
-                cloudModal.classList.add('hidden');
-                loadCloudPresets();
-            } catch (err) {
-                console.error("Save error:", err);
-                showMessage('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่');
-            }
-        });
-
-        async function loadCloudPresets() {
-            const container = document.getElementById('presetsListContainer');
-            if (!db) {
-                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">โหมดเดโม (ไม่มีฐานข้อมูลคลาวด์เชื่อมต่อ)</p>`;
-                return;
-            }
-
-            try {
-                const q = query(collection(db, 'artifacts', appId, 'users', userId, 'constellations'));
-                const querySnapshot = await getDocs(q);
-                if (querySnapshot.empty) {
-                    container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">ยังไม่มีกลุ่มดาวที่บันทึกไว้ในคลาวด์</p>`;
-                    return;
-                }
-
-                container.innerHTML = '';
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const div = document.createElement('div');
-                    div.className = 'glass-panel p-3 rounded-xl flex justify-between items-center border border-white/10';
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-xs font-bold text-white">${data.name}</p>
-                            <p class="text-[10px] text-gray-400">ดวงดาว: ${data.stars?.length || 0} ดวง</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button class="load-btn px-2.5 py-1 rounded-lg bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 text-xs font-semibold transition" data-id="${docSnap.id}">โหลด</button>
-                            <button class="del-btn px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 text-xs font-semibold transition" data-id="${docSnap.id}">ลบ</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-
-                container.querySelectorAll('.load-btn').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        const id = e.target.getAttribute('data-id');
-                        const docSnap = querySnapshot.docs.find(d => d.id === id);
-                        if (docSnap) {
-                            const data = docSnap.data();
-                            customStars = data.stars || [];
-                            connections = data.connections || [];
-                            selectedStarIndex = null;
-                            selectedLineIndex = null;
-                            updateDeleteButtonState();
-                            cloudModal.classList.add('hidden');
-                            showMessage(`โหลดกลุ่มดาว "${data.name}" สำเร็จ!`);
-                        }
-                    });
-                });
-
-                container.querySelectorAll('.del-btn').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        const id = e.target.getAttribute('data-id');
-                        try {
-                            await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'constellations', id));
-                            loadCloudPresets();
-                        } catch (err) {
-                            console.error("Delete error:", err);
-                        }
-                    });
-                });
-
-            } catch (err) {
-                console.error("Load presets error:", err);
-                container.innerHTML = `<p class="text-xs text-red-400 text-center py-4">ไม่สามารถโหลดข้อมูลจากคลาวด์ได้</p>`;
-            }
-        }
     </script>
 </body>
 </html>
